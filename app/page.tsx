@@ -13,7 +13,7 @@ export default function ComingSoon() {
     >
       <div className="text-center px-6 max-w-2xl">
         <h1 className="text-4xl md:text-6xl font-extrabold text-white">
-          {user?.firstName} {user?.lastName}
+          Welcome {user?.firstName} {user?.lastName}
         </h1>
         <h1
           className="text-4xl md:text-6xl font-extrabold text-white
