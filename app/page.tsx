@@ -1,10 +1,20 @@
+"use client";
+import { useUser } from "@clerk/nextjs";
+
 export default function ComingSoon() {
+  const { user, isLoaded } = useUser();
+
+  if (!isLoaded) return null;
+
   return (
     <div
       className="flex min-h-screen items-center justify-center
       bg-gradient-to-br from-pink-500 via-purple-600 to-cyan-400"
     >
       <div className="text-center px-6 max-w-2xl">
+        <h1 className="text-4xl md:text-6xl font-extrabold text-white">
+          {user?.firstName} {user?.lastName}
+        </h1>
         <h1
           className="text-4xl md:text-6xl font-extrabold text-white
           drop-shadow-[0_0_15px_rgba(255,255,255,0.6)]"
