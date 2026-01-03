@@ -45,7 +45,7 @@ const ContactUs = () => {
       id: 'address',
       title: 'Visit Us',
       icon: '📍',
-      details: ['IMO Gaming Arena', 'Tech Park, Sector 62', 'Noida, Uttar Pradesh 201309'],
+      details: ['IMO Gaming Arena', 'Gurudatta A5', 'PUNE, Mahalunge baner near Godrej opp to VTP sale Office, 411045'],
       description: 'Open 24/7 for members',
       color: '#ffaa00'
     },
