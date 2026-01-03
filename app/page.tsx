@@ -1,7 +1,7 @@
 // App.js
 import "./globals.css";
-import IMOHeader from "./components/IMOHeader";
-import ContactUS from "./components/ContactUs";
+import IMOHeader from "../components/IMOHeader";
+import ContactUS from "../components/ContactUs";
 
 function App() {
   return (
