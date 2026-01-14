@@ -13,7 +13,7 @@ const IMOHeader: React.FC = () => {
 
   const navItems: NavItem[] = [
     { id: "home", label: "Home" },
-    { id: "events", label: "Events & Tournaments" },
+    { id: "tracker", label: "Tracker" },
     { id: "facilities", label: "Facilities" },
     // { id: "membership", label: "Membership" },
     { id: "about", label: "About" },
@@ -64,7 +64,11 @@ const IMOHeader: React.FC = () => {
       return;
      }
 
-     
+     if(id === "tracker"){
+      router.push('/tracker');
+      setIsMenuOpen(false);
+      return;
+     }
 
     setActiveNav(id);
     setIsMenuOpen(false);
