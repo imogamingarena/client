@@ -3,19 +3,22 @@
 import React, { useState } from "react";
 import "./HeaderCSS.css";
 import { NavItem, EventItem, SocialLink } from "@/types/header.types";
+import { useRouter } from 'next/navigation'
 
 const IMOHeader: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [activeNav, setActiveNav] = useState<string>("home");
   const [isTickerPaused, setIsTickerPaused] = useState<boolean>(false);
+  const router = useRouter()
 
   const navItems: NavItem[] = [
     { id: "home", label: "Home" },
     { id: "events", label: "Events & Tournaments" },
     { id: "facilities", label: "Facilities" },
-    { id: "membership", label: "Membership" },
+    // { id: "membership", label: "Membership" },
     { id: "about", label: "About" },
-    { id: "contact", label: "Contact" },
+    { id: "contact", label: "Contact" }, 
+    { id: "priceChart", label: "PriceChart" },
   ];
 
   const upcomingEvents: EventItem[] = [
@@ -54,6 +57,15 @@ const IMOHeader: React.FC = () => {
   ];
 
   const handleNavClick = (id: string): void => {
+   
+     if(id === 'priceChart'){
+      router.push('/priceChart');
+      setIsMenuOpen(false);
+      return;
+     }
+
+     
+
     setActiveNav(id);
     setIsMenuOpen(false);
     // In a real app, you would handle navigation here
