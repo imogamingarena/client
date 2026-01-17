@@ -1,27 +1,18 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { format } from "../../utils/formatters";
+import {
+  formatCurrency,
+  formatDuration,
+  getStatusColor,
+  getStatusIcon,
+  getStatusText,
+  getSystemIcon,
+} from "@/helperFunction";
+import { System, SystemStatusProps } from "@/types/interface";
+import { systemsDesc } from "./systemDetails";
 
-interface SystemStatusProps {
-  system: {
-    id: string;
-    type: string;
-    name: string;
-    playerName: string;
-    playerPhone: string | undefined;
-    startTime: Date;
-    controllerCount: number;
-    status: "active" | "paused" | "completed" | "available";
-    totalAmount: number;
-    duration: number; // in seconds
-    lastPausedTime?: Date;
-    pausedDuration: number; // in seconds
-  };
-  onPause?: (id: string) => void;
-  onResume?: (id: string) => void;
-  onEnd?: (id: string) => void;
-  onCancel?: (id: string) => void;
-}
+// Type assertion to ensure systemsDesc matches System[]
 
 const SystemStatus: React.FC<SystemStatusProps> = ({
   system,
@@ -29,6 +20,8 @@ const SystemStatus: React.FC<SystemStatusProps> = ({
   onResume,
   onEnd,
   onCancel,
+  onEdit,
+  onDelete,
 }) => {
   const [currentDuration, setCurrentDuration] = useState(system.duration);
   const [currentAmount, setCurrentAmount] = useState(system.totalAmount);
@@ -45,8 +38,11 @@ const SystemStatus: React.FC<SystemStatusProps> = ({
         const actualDuration = elapsedSeconds - system.pausedDuration;
         setCurrentDuration(actualDuration);
 
-        // Simulate amount calculation (replace with your actual pricing logic)
-        const newAmount = Math.max(system.totalAmount, actualDuration * 0.5);
+        // Calculate amount based on rate
+        const newAmount = Math.max(
+          system.totalAmount,
+          actualDuration * system.ratePerSecond,
+        );
         setCurrentAmount(newAmount);
 
         // Pulsing effect for active systems
@@ -61,68 +57,8 @@ const SystemStatus: React.FC<SystemStatusProps> = ({
     system.startTime,
     system.pausedDuration,
     system.totalAmount,
+    system.ratePerSecond,
   ]);
-
-  const formatDuration = (seconds: number) => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${hrs.toString().padStart(2, "0")}:${mins
-      .toString()
-      .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  const getStatusColor = () => {
-    switch (system.status) {
-      case "active":
-        return "bg-green-500/20 border-green-500/40";
-      case "paused":
-        return "bg-yellow-500/20 border-yellow-500/40";
-      case "completed":
-        return "bg-blue-500/20 border-blue-500/40";
-      default:
-        return "bg-gray-500/20 border-gray-500/40";
-    }
-  };
-
-  const getStatusText = () => {
-    switch (system.status) {
-      case "active":
-        return "ACTIVE";
-      case "paused":
-        return "PAUSED";
-      case "completed":
-        return "COMPLETED";
-      default:
-        return "AVAILABLE";
-    }
-  };
-
-  const getStatusIcon = () => {
-    switch (system.status) {
-      case "active":
-        return "▶️";
-      case "paused":
-        return "⏸️";
-      case "completed":
-        return "✅";
-      default:
-        return "🔄";
-    }
-  };
-
-  const getSystemIcon = (type: string) => {
-    switch (type) {
-      case '27"':
-        return "🖥️";
-      case '32"':
-        return "📺";
-      case '55"':
-        return "🎬";
-      default:
-        return "🎮";
-    }
-  };
 
   return (
     <div className="relative group">
@@ -134,9 +70,9 @@ const SystemStatus: React.FC<SystemStatusProps> = ({
       )}
 
       <div
-        className={`relative p-4 sm:p-6 rounded-2xl border-2 backdrop-blur-sm ${getStatusColor()} transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl`}
+        className={`relative p-4 sm:p-6 rounded-2xl border-2 backdrop-blur-sm ${getStatusColor(system.status)} transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl`}
       >
-        {/* System header */}
+        {/* System header with actions */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="relative">
@@ -150,7 +86,7 @@ const SystemStatus: React.FC<SystemStatusProps> = ({
               )}
             </div>
 
-            <div>
+            <div className="flex-1">
               <div className="flex items-center gap-2">
                 <h3 className="text-lg sm:text-xl font-bold text-white">
                   {system.type} - {system.name}
@@ -166,21 +102,46 @@ const SystemStatus: React.FC<SystemStatusProps> = ({
                           : "bg-gray-500/30 text-gray-400"
                   }`}
                 >
-                  {getStatusText()}
+                  {getStatusText(system.status)}
                 </span>
               </div>
-              <p className="text-sm text-gray-400 mt-1">ID: {system.id}</p>
+              <p className="text-sm text-gray-400 mt-1">{system.description}</p>
+              <p className="text-xs text-gray-500 mt-1">ID: {system.id}</p>
             </div>
           </div>
 
-          <div className="text-right">
-            <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
-              {system.status === "available"
-                ? "FREE"
-                : formatCurrency(currentAmount)}
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex gap-1">
+              {onEdit && (
+                <button
+                  onClick={() => onEdit(system)}
+                  className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+                  title="Edit system"
+                >
+                  <span className="text-sm">✏️</span>
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  onClick={() => onDelete(system.id)}
+                  className="p-2 bg-red-900/30 hover:bg-red-800/40 rounded-lg transition-colors"
+                  title="Delete system"
+                >
+                  <span className="text-sm">🗑️</span>
+                </button>
+              )}
             </div>
-            <div className="text-xs text-gray-500 mt-1">
-              {system.status === "available" ? "Ready to play" : "Live amount"}
+            <div className="text-right">
+              <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
+                {system.status === "available"
+                  ? "FREE"
+                  : formatCurrency(currentAmount)}
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                {system.status === "available"
+                  ? "Ready to play"
+                  : "Live amount"}
+              </div>
             </div>
           </div>
         </div>
@@ -198,11 +159,6 @@ const SystemStatus: React.FC<SystemStatusProps> = ({
                     <h4 className="font-bold text-white">
                       {system.playerName}
                     </h4>
-                    {system.playerPhone && (
-                      <p className="text-xs text-gray-400">
-                        📱 {system.playerPhone}
-                      </p>
-                    )}
                   </div>
                 </div>
               </div>
@@ -237,12 +193,12 @@ const SystemStatus: React.FC<SystemStatusProps> = ({
             </div>
             <div className="flex items-center gap-2">
               <div className="text-xl sm:text-2xl font-bold text-white">
-                {system.controllerCount}
+                {system.controllerCount}/{system.maxControllers}
               </div>
               <div className="text-2xl">🎮</div>
             </div>
             <div className="text-xs text-gray-400 mt-1">
-              {system.controllerCount > 1 ? "Controllers" : "Controller"}
+              Max: {system.maxControllers}
             </div>
           </div>
 
@@ -252,9 +208,11 @@ const SystemStatus: React.FC<SystemStatusProps> = ({
               Rate
             </div>
             <div className="text-xl sm:text-2xl font-bold text-green-400">
-              ₹0.5/s
+              ₹{system.ratePerSecond}/s
             </div>
-            <div className="text-xs text-gray-400 mt-1">Per second</div>
+            <div className="text-xs text-gray-400 mt-1">
+              ₹{system.hourlyRate}/hr
+            </div>
           </div>
 
           {/* Status */}
@@ -263,9 +221,9 @@ const SystemStatus: React.FC<SystemStatusProps> = ({
               Status
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-2xl">{getStatusIcon()}</span>
+              <span className="text-2xl">{getStatusIcon(system.status)}</span>
               <div className="text-lg font-bold text-white">
-                {getStatusText()}
+                {getStatusText(system.status)}
               </div>
             </div>
             <div className="text-xs text-gray-400 mt-1">
@@ -369,120 +327,283 @@ const SystemStatus: React.FC<SystemStatusProps> = ({
   );
 };
 
-// Helper function to format currency
-const formatCurrency = (amount: number) => {
-  return `₹${amount.toFixed(2)}`;
+// Add System Form Component
+const AddSystemForm: React.FC<{
+  onSubmit: (
+    system: Omit<
+      System,
+      | "id"
+      | "playerName"
+      | "playerPhone"
+      | "startTime"
+      | "duration"
+      | "pausedDuration"
+      | "status"
+      | "totalAmount"
+      | "controllerCount"
+    >,
+  ) => void;
+  onCancel: () => void;
+  editingSystem?: System | null;
+}> = ({ onSubmit, onCancel, editingSystem }) => {
+  const [formData, setFormData] = useState({
+    type: editingSystem?.type || '27"',
+    name: editingSystem?.name || "",
+    description: editingSystem?.description || "",
+    ratePerSecond: editingSystem?.ratePerSecond || 0.5,
+    hourlyRate: editingSystem?.hourlyRate || 180,
+    maxControllers: editingSystem?.maxControllers || 4,
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl p-6 max-w-md w-full">
+        <h2 className="text-2xl font-bold text-white mb-4">
+          {editingSystem ? "Edit System" : "Add New System"}
+        </h2>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">
+              System Type
+            </label>
+            <select
+              value={formData.type}
+              onChange={(e) =>
+                setFormData({ ...formData, type: e.target.value })
+              }
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
+            >
+              <option value='27"'>27" Standard</option>
+              <option value='32"'>32" Premium</option>
+              <option value='55"'>55" Ultimate</option>
+              <option value="Custom">Custom</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">
+              System Name
+            </label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
+              placeholder="e.g., Gaming Station 1"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">
+              Description
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500 min-h-[100px] resize-vertical"
+              placeholder="Describe the system features..."
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-gray-400 mb-1">
+                Rate per second (₹)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.ratePerSecond}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    ratePerSecond: parseFloat(e.target.value),
+                  })
+                }
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm text-gray-400 mb-1">
+                Hourly Rate (₹)
+              </label>
+              <input
+                type="number"
+                value={formData.hourlyRate}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    hourlyRate: parseInt(e.target.value),
+                  })
+                }
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">
+              Max Controllers
+            </label>
+            <input
+              type="number"
+              min="1"
+              max="8"
+              value={formData.maxControllers}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  maxControllers: parseInt(e.target.value),
+                })
+              }
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
+              required
+            />
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button
+              type="submit"
+              className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 rounded-xl transition-all duration-200"
+            >
+              {editingSystem ? "Update System" : "Add System"}
+            </button>
+            <button
+              type="button"
+              onClick={onCancel}
+              className="flex-1 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white font-bold py-3 rounded-xl transition-all duration-200"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 };
 
-// Example usage component
-const SystemStatusDashboard: React.FC = () => {
-  const [systems, setSystems] = useState<
-    Array<{
-      id: string;
-      type: string;
-      name: string;
-      playerName: string;
-      playerPhone: string | undefined;
-      startTime: Date;
-      controllerCount: number;
-      status: "active" | "paused" | "completed" | "available";
-      totalAmount: number;
-      duration: number;
-      pausedDuration: number;
-    }>
-  >([
-    {
-      id: "SYS001",
-      type: '27"',
-      name: "Standard Gaming",
-      playerName: "John Doe",
-      playerPhone: "+91 9876543210",
-      startTime: new Date(Date.now() - 45 * 60 * 1000), // 45 minutes ago
-      controllerCount: 2,
-      status: "active" as const,
-      totalAmount: 135.5,
-      duration: 45 * 60, // 45 minutes in seconds
-      pausedDuration: 0,
-    },
-    {
-      id: "SYS002",
-      type: '32"',
-      name: "Premium Gaming",
-      playerName: "Jane Smith",
-      playerPhone: "+91 9876543211",
-      startTime: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-      controllerCount: 4,
-      status: "paused" as const,
-      totalAmount: 220.0,
-      duration: 30 * 60, // 30 minutes in seconds
-      pausedDuration: 5 * 60, // 5 minutes paused
-    },
-    {
-      id: "SYS003",
-      type: '55"',
-      name: "Ultimate Gaming",
-      playerName: "Bob Wilson",
-      playerPhone: "+91 9876543212",
-      startTime: new Date(Date.now() - 90 * 60 * 1000), // 90 minutes ago
-      controllerCount: 3,
-      status: "completed" as const,
-      totalAmount: 450.0,
-      duration: 90 * 60, // 90 minutes in seconds
-      pausedDuration: 0,
-    },
-    {
-      id: "SYS004",
-      type: '27"',
-      name: "Standard Gaming",
-      playerName: "",
-      playerPhone: undefined,
-      startTime: new Date(),
-      controllerCount: 1,
-      status: "available" as const,
-      totalAmount: 0,
-      duration: 0,
-      pausedDuration: 0,
-    },
-  ]);
+// Main Dashboard Component
+const DynamicSystemStatusDashboard: React.FC = () => {
+  const [systems, setSystems] = useState<System[]>(systemsDesc);
+  const [playerName, setPlayerName] = useState("");
+  const [playerPhone, setPlayerPhone] = useState("");
+  const [selectedSystem, setSelectedSystem] = useState<string | null>(null);
+  const [controllerCount, setControllerCount] = useState(1);
+
+  const handleDeleteSystem = (id: string) => {
+    if (confirm("Are you sure you want to delete this system?")) {
+      setSystems(systems.filter((sys) => sys.id !== id));
+    }
+  };
+
+  const handleStartSession = (systemId: string) => {
+    if (!playerName.trim()) {
+      alert("Please enter player name");
+      return;
+    }
+
+    setSystems(
+      systems.map((sys) =>
+        sys.id === systemId
+          ? {
+              ...sys,
+              playerName,
+              playerPhone: playerPhone || undefined,
+              startTime: new Date(),
+              status: "active",
+              controllerCount,
+              totalAmount: 0,
+              duration: 0,
+              pausedDuration: 0,
+            }
+          : sys,
+      ),
+    );
+
+    setPlayerName("");
+    setPlayerPhone("");
+    setSelectedSystem(null);
+    setControllerCount(1);
+  };
 
   const handlePause = (id: string) => {
-    console.log(`Pause system ${id}`);
-    setSystems((prev) =>
-      prev.map((sys) =>
-        sys.id === id ? { ...sys, status: "paused" as const } : sys,
-      ),
-    );
-  };
-
-  const handleResume = (id: string) => {
-    console.log(`Resume system ${id}`);
-    setSystems((prev) =>
-      prev.map((sys) =>
-        sys.id === id ? { ...sys, status: "active" as const } : sys,
-      ),
-    );
-  };
-
-  const handleEnd = (id: string) => {
-    console.log(`End session on system ${id}`);
-    setSystems((prev) =>
-      prev.map((sys) =>
-        sys.id === id ? { ...sys, status: "completed" as const } : sys,
-      ),
-    );
-  };
-
-  const handleCancel = (id: string) => {
-    console.log(`Cancel session on system ${id}`);
     setSystems((prev) =>
       prev.map((sys) =>
         sys.id === id
           ? {
               ...sys,
-              status: "available" as const,
+              status: "paused",
+              lastPausedTime: new Date(),
+            }
+          : sys,
+      ),
+    );
+  };
+
+  const handleResume = (id: string) => {
+    const system = systems.find((s) => s.id === id);
+    if (!system || !system.lastPausedTime) return;
+
+    const pauseDuration = Math.floor(
+      (new Date().getTime() - system.lastPausedTime.getTime()) / 1000,
+    );
+
+    setSystems((prev) =>
+      prev.map((sys) =>
+        sys.id === id
+          ? {
+              ...sys,
+              status: "active",
+              pausedDuration: sys.pausedDuration + pauseDuration,
+              lastPausedTime: undefined,
+            }
+          : sys,
+      ),
+    );
+  };
+
+  const handleEnd = (id: string) => {
+    setSystems((prev) =>
+      prev.map((sys) =>
+        sys.id === id
+          ? {
+              ...sys,
+              status: "completed",
+              endTime: new Date(),
+            }
+          : sys,
+      ),
+    );
+  };
+
+  const handleCancel = (id: string) => {
+    setSystems((prev) =>
+      prev.map((sys) =>
+        sys.id === id
+          ? {
+              ...sys,
               playerName: "",
+              playerPhone: undefined,
+              status: "available",
               totalAmount: 0,
               duration: 0,
+              pausedDuration: 0,
+              controllerCount: 1,
             }
           : sys,
       ),
@@ -492,18 +613,85 @@ const SystemStatusDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white p-4 sm:p-6 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold mb-2">
-            <span className="bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
-              Gaming Systems Dashboard
-            </span>
-          </h1>
-          <p className="text-gray-400">
-            Real-time status of all gaming systems
-          </p>
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-bold mb-2">
+              <span className="bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
+                Manage Gaming Systems
+              </span>
+            </h1>
+            <p className="text-gray-400">
+              Manage {systems.length} gaming systems dynamically
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Start Session Form */}
+        {selectedSystem && (
+          <div className="mb-6 p-6 rounded-2xl bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700">
+            <h2 className="text-xl font-bold mb-4">Start New Session</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">
+                  Player Name
+                </label>
+                <input
+                  type="text"
+                  value={playerName}
+                  onChange={(e) => setPlayerName(e.target.value)}
+                  className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
+                  placeholder="Enter player name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">
+                  Phone (Optional)
+                </label>
+                <input
+                  type="tel"
+                  value={playerPhone}
+                  onChange={(e) => setPlayerPhone(e.target.value)}
+                  className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
+                  placeholder="Enter phone number"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">
+                  Controllers
+                </label>
+                <select
+                  value={controllerCount}
+                  onChange={(e) => setControllerCount(parseInt(e.target.value))}
+                  className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
+                >
+                  {[...Array(8)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1} Controller{i + 1 > 1 ? "s" : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => handleStartSession(selectedSystem)}
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold px-6 py-3 rounded-xl transition-all duration-200"
+              >
+                Start Session
+              </button>
+              <button
+                onClick={() => setSelectedSystem(null)}
+                className="bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white font-bold px-6 py-3 rounded-xl transition-all duration-200"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Systems Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {systems.map((system) => (
             <SystemStatus
               key={system.id}
@@ -512,40 +700,83 @@ const SystemStatusDashboard: React.FC = () => {
               onResume={handleResume}
               onEnd={handleEnd}
               onCancel={handleCancel}
+              onDelete={handleDeleteSystem}
             />
           ))}
         </div>
 
-        {/* Stats summary */}
-        <div className="mt-8 p-6 rounded-2xl bg-gray-900/50 border border-gray-800">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-400">
-                {systems.filter((s) => s.status === "active").length}
-              </div>
-              <div className="text-sm text-gray-400">Active Systems</div>
+        {/* Stats Summary */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="p-6 rounded-2xl bg-gradient-to-r from-green-900/30 to-emerald-900/30 border border-green-800/30">
+            <div className="text-3xl font-bold text-green-400 mb-2">
+              {systems.filter((s) => s.status === "active").length}
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-400">
-                {systems.filter((s) => s.status === "paused").length}
-              </div>
-              <div className="text-sm text-gray-400">Paused</div>
+            <div className="text-sm text-gray-400">Active Systems</div>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-gradient-to-r from-yellow-900/30 to-amber-900/30 border border-yellow-800/30">
+            <div className="text-3xl font-bold text-yellow-400 mb-2">
+              {systems.filter((s) => s.status === "paused").length}
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-400">
-                {systems.filter((s) => s.status === "available").length}
-              </div>
-              <div className="text-sm text-gray-400">Available</div>
+            <div className="text-sm text-gray-400">Paused Systems</div>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-900/30 to-cyan-900/30 border border-blue-800/30">
+            <div className="text-3xl font-bold text-blue-400 mb-2">
+              {systems.length}
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-400">
-                ₹
-                {systems
-                  .reduce((sum, sys) => sum + sys.totalAmount, 0)
-                  .toFixed(2)}
-              </div>
-              <div className="text-sm text-gray-400">Total Revenue</div>
+            <div className="text-sm text-gray-400">Total Systems</div>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-gradient-to-r from-purple-900/30 to-pink-900/30 border border-purple-800/30">
+            <div className="text-3xl font-bold text-purple-400 mb-2">
+              ₹
+              {systems
+                .reduce((sum, sys) => sum + sys.totalAmount, 0)
+                .toFixed(2)}
             </div>
+            <div className="text-sm text-gray-400">Total Revenue</div>
+          </div>
+        </div>
+
+        {/* System Configuration Panel */}
+        <div className="p-6 rounded-2xl bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700">
+          <h2 className="text-xl font-bold mb-4">System Configuration</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-700">
+                  <th className="py-3 px-4 text-left text-gray-400">System</th>
+                  <th className="py-3 px-4 text-left text-gray-400">Type</th>
+                  <th className="py-3 px-4 text-left text-gray-400">Rate/hr</th>
+                  <th className="py-3 px-4 text-left text-gray-400">
+                    price for extra controller
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {systems.map((system) => (
+                  <tr
+                    key={system.id}
+                    className="border-b border-gray-800 hover:bg-gray-800/50"
+                  >
+                    <td className="py-3 px-4">
+                      <div className="font-medium">{system.name}</div>
+                      <div className="text-sm text-gray-500">
+                        {system.description}
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">{system.type}</td>
+                    <td className="py-3 px-4 text-green-400 font-bold">
+                      ₹{system.hourlyRate}
+                    </td>{" "}
+                    <td className="py-3 px-4 text-green-400 font-bold">
+                      ₹{system.hourlyRate}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -553,4 +784,4 @@ const SystemStatusDashboard: React.FC = () => {
   );
 };
 
-export { SystemStatus, SystemStatusDashboard };
+export { SystemStatus, DynamicSystemStatusDashboard };

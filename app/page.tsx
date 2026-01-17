@@ -1,4 +1,5 @@
 // App.js
+"use client";
 import "./globals.css";
 import IMOHeader from "../components/IMOHeader";
 import ContactUS from "../components/ContactUs";
