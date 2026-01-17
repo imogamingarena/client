@@ -376,94 +376,7 @@ const IMOGamingArena: React.FC = () => {
                         border: "1px solid #444",
                       }}
                     >
-                      ₹40
-                    </td>
-                    <td
-                      style={{
-                        fontWeight: "bold",
-                        color: "#00ff88",
-                        fontSize: "1.4rem",
-                        padding: "18px",
-                        textAlign: "center",
-                        border: "1px solid #444",
-                      }}
-                    >
                       ₹60
-                    </td>
-                    <td
-                      style={{
-                        fontWeight: "bold",
-                        color: "#00ff88",
-                        fontSize: "1.4rem",
-                        padding: "18px",
-                        textAlign: "center",
-                        border: "1px solid #444",
-                      }}
-                    >
-                      ₹100
-                    </td>
-                    <td
-                      style={{
-                        fontWeight: "bold",
-                        color: "#00ff88",
-                        fontSize: "1.4rem",
-                        padding: "18px",
-                        textAlign: "center",
-                        border: "1px solid #444",
-                      }}
-                    >
-                      ₹120{" "}
-                      <span
-                        style={{
-                          background: "#ff0080",
-                          color: "white",
-                          padding: "5px 10px",
-                          borderRadius: "20px",
-                          fontSize: "0.9rem",
-                          fontWeight: "bold",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        +30 FREE
-                      </span>
-                    </td>
-                  </tr>
-                  <tr
-                    style={
-                      {
-                        ":nth-child(even)": {
-                          background: "rgba(40, 40, 70, 0.5)",
-                        },
-                        ":hover": {
-                          background: "rgba(0, 255, 136, 0.1)",
-                          transform: "scale(1.01)",
-                        },
-                      } as any
-                    }
-                  >
-                    <td
-                      style={{
-                        fontWeight: "bold",
-                        color: "#00ccff",
-                        fontSize: "1.3rem",
-                        padding: "18px",
-                        textAlign: "center",
-                        border: "1px solid #444",
-                      }}
-                    >
-                      32" Premium Setup
-                    </td>
-                    <td
-                      style={{
-                        fontWeight: "bold",
-                        color: "#00ff88",
-                        fontSize: "1.4rem",
-                        padding: "18px",
-                        textAlign: "center",
-                        border: "1px solid #444",
-                      }}
-                    >
-                      ₹50
                     </td>
                     <td
                       style={{
@@ -538,7 +451,7 @@ const IMOGamingArena: React.FC = () => {
                         border: "1px solid #444",
                       }}
                     >
-                      55" Ultimate Setup
+                      32" Premium Setup
                     </td>
                     <td
                       style={{
@@ -550,7 +463,7 @@ const IMOGamingArena: React.FC = () => {
                         border: "1px solid #444",
                       }}
                     >
-                      ₹60
+                      ₹70
                     </td>
                     <td
                       style={{
@@ -574,7 +487,7 @@ const IMOGamingArena: React.FC = () => {
                         border: "1px solid #444",
                       }}
                     >
-                      ₹160
+                      ₹150
                     </td>
                     <td
                       style={{
@@ -587,6 +500,93 @@ const IMOGamingArena: React.FC = () => {
                       }}
                     >
                       ₹200{" "}
+                      <span
+                        style={{
+                          background: "#ff0080",
+                          color: "white",
+                          padding: "5px 10px",
+                          borderRadius: "20px",
+                          fontSize: "0.9rem",
+                          fontWeight: "bold",
+                          marginLeft: "5px",
+                        }}
+                      >
+                        +30 FREE
+                      </span>
+                    </td>
+                  </tr>
+                  <tr
+                    style={
+                      {
+                        ":nth-child(even)": {
+                          background: "rgba(40, 40, 70, 0.5)",
+                        },
+                        ":hover": {
+                          background: "rgba(0, 255, 136, 0.1)",
+                          transform: "scale(1.01)",
+                        },
+                      } as any
+                    }
+                  >
+                    <td
+                      style={{
+                        fontWeight: "bold",
+                        color: "#00ccff",
+                        fontSize: "1.3rem",
+                        padding: "18px",
+                        textAlign: "center",
+                        border: "1px solid #444",
+                      }}
+                    >
+                      55" Ultimate Setup
+                    </td>
+                    <td
+                      style={{
+                        fontWeight: "bold",
+                        color: "#00ff88",
+                        fontSize: "1.4rem",
+                        padding: "18px",
+                        textAlign: "center",
+                        border: "1px solid #444",
+                      }}
+                    >
+                      ₹80
+                    </td>
+                    <td
+                      style={{
+                        fontWeight: "bold",
+                        color: "#00ff88",
+                        fontSize: "1.4rem",
+                        padding: "18px",
+                        textAlign: "center",
+                        border: "1px solid #444",
+                      }}
+                    >
+                      ₹120
+                    </td>
+                    <td
+                      style={{
+                        fontWeight: "bold",
+                        color: "#00ff88",
+                        fontSize: "1.4rem",
+                        padding: "18px",
+                        textAlign: "center",
+                        border: "1px solid #444",
+                      }}
+                    >
+                      ₹180
+                    </td>
+                    <td
+                      style={{
+                        fontWeight: "bold",
+                        color: "#00ff88",
+                        fontSize: "1.4rem",
+                        padding: "18px",
+                        textAlign: "center",
+                        border: "1px solid #444",
+                      }}
+                    >
+                      ₹240{" "}
                       <span
                         style={{
                           background: "#ff0080",
