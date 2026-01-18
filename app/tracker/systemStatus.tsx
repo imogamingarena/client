@@ -20,8 +20,6 @@ const SystemStatus: React.FC<SystemStatusProps> = ({
   onResume,
   onEnd,
   onCancel,
-  onEdit,
-  onDelete,
 }) => {
   const [currentDuration, setCurrentDuration] = useState(system.duration);
   const [currentAmount, setCurrentAmount] = useState(system.totalAmount);
@@ -111,26 +109,7 @@ const SystemStatus: React.FC<SystemStatusProps> = ({
           </div>
 
           <div className="flex flex-col items-end gap-2">
-            <div className="flex gap-1">
-              {onEdit && (
-                <button
-                  onClick={() => onEdit(system)}
-                  className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
-                  title="Edit system"
-                >
-                  <span className="text-sm">✏️</span>
-                </button>
-              )}
-              {onDelete && (
-                <button
-                  onClick={() => onDelete(system.id)}
-                  className="p-2 bg-red-900/30 hover:bg-red-800/40 rounded-lg transition-colors"
-                  title="Delete system"
-                >
-                  <span className="text-sm">🗑️</span>
-                </button>
-              )}
-            </div>
+            <div className="flex gap-1"></div>
             <div className="text-right">
               <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
                 {system.status === "available"
@@ -327,176 +306,6 @@ const SystemStatus: React.FC<SystemStatusProps> = ({
   );
 };
 
-// Add System Form Component
-const AddSystemForm: React.FC<{
-  onSubmit: (
-    system: Omit<
-      System,
-      | "id"
-      | "playerName"
-      | "playerPhone"
-      | "startTime"
-      | "duration"
-      | "pausedDuration"
-      | "status"
-      | "totalAmount"
-      | "controllerCount"
-    >,
-  ) => void;
-  onCancel: () => void;
-  editingSystem?: System | null;
-}> = ({ onSubmit, onCancel, editingSystem }) => {
-  const [formData, setFormData] = useState({
-    type: editingSystem?.type || '27"',
-    name: editingSystem?.name || "",
-    description: editingSystem?.description || "",
-    ratePerSecond: editingSystem?.ratePerSecond || 0.5,
-    hourlyRate: editingSystem?.hourlyRate || 180,
-    maxControllers: editingSystem?.maxControllers || 4,
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl p-6 max-w-md w-full">
-        <h2 className="text-2xl font-bold text-white mb-4">
-          {editingSystem ? "Edit System" : "Add New System"}
-        </h2>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm text-gray-400 mb-1">
-              System Type
-            </label>
-            <select
-              value={formData.type}
-              onChange={(e) =>
-                setFormData({ ...formData, type: e.target.value })
-              }
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
-            >
-              <option value='27"'>27" Standard</option>
-              <option value='32"'>32" Premium</option>
-              <option value='55"'>55" Ultimate</option>
-              <option value="Custom">Custom</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm text-gray-400 mb-1">
-              System Name
-            </label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
-              placeholder="e.g., Gaming Station 1"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-gray-400 mb-1">
-              Description
-            </label>
-            <textarea
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500 min-h-[100px] resize-vertical"
-              placeholder="Describe the system features..."
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">
-                Rate per second (₹)
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                value={formData.ratePerSecond}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    ratePerSecond: parseFloat(e.target.value),
-                  })
-                }
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">
-                Hourly Rate (₹)
-              </label>
-              <input
-                type="number"
-                value={formData.hourlyRate}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    hourlyRate: parseInt(e.target.value),
-                  })
-                }
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm text-gray-400 mb-1">
-              Max Controllers
-            </label>
-            <input
-              type="number"
-              min="1"
-              max="8"
-              value={formData.maxControllers}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  maxControllers: parseInt(e.target.value),
-                })
-              }
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
-              required
-            />
-          </div>
-
-          <div className="flex gap-3 pt-4">
-            <button
-              type="submit"
-              className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 rounded-xl transition-all duration-200"
-            >
-              {editingSystem ? "Update System" : "Add System"}
-            </button>
-            <button
-              type="button"
-              onClick={onCancel}
-              className="flex-1 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white font-bold py-3 rounded-xl transition-all duration-200"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
 // Main Dashboard Component
 const DynamicSystemStatusDashboard: React.FC = () => {
   const [systems, setSystems] = useState<System[]>(systemsDesc);
@@ -504,12 +313,6 @@ const DynamicSystemStatusDashboard: React.FC = () => {
   const [playerPhone, setPlayerPhone] = useState("");
   const [selectedSystem, setSelectedSystem] = useState<string | null>(null);
   const [controllerCount, setControllerCount] = useState(1);
-
-  const handleDeleteSystem = (id: string) => {
-    if (confirm("Are you sure you want to delete this system?")) {
-      setSystems(systems.filter((sys) => sys.id !== id));
-    }
-  };
 
   const handleStartSession = (systemId: string) => {
     if (!playerName.trim()) {
@@ -700,7 +503,6 @@ const DynamicSystemStatusDashboard: React.FC = () => {
               onResume={handleResume}
               onEnd={handleEnd}
               onCancel={handleCancel}
-              onDelete={handleDeleteSystem}
             />
           ))}
         </div>
@@ -736,47 +538,6 @@ const DynamicSystemStatusDashboard: React.FC = () => {
                 .toFixed(2)}
             </div>
             <div className="text-sm text-gray-400">Total Revenue</div>
-          </div>
-        </div>
-
-        {/* System Configuration Panel */}
-        <div className="p-6 rounded-2xl bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700">
-          <h2 className="text-xl font-bold mb-4">System Configuration</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-700">
-                  <th className="py-3 px-4 text-left text-gray-400">System</th>
-                  <th className="py-3 px-4 text-left text-gray-400">Type</th>
-                  <th className="py-3 px-4 text-left text-gray-400">Rate/hr</th>
-                  <th className="py-3 px-4 text-left text-gray-400">
-                    price for extra controller
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {systems.map((system) => (
-                  <tr
-                    key={system.id}
-                    className="border-b border-gray-800 hover:bg-gray-800/50"
-                  >
-                    <td className="py-3 px-4">
-                      <div className="font-medium">{system.name}</div>
-                      <div className="text-sm text-gray-500">
-                        {system.description}
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">{system.type}</td>
-                    <td className="py-3 px-4 text-green-400 font-bold">
-                      ₹{system.hourlyRate}
-                    </td>{" "}
-                    <td className="py-3 px-4 text-green-400 font-bold">
-                      ₹{system.hourlyRate}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
         </div>
       </div>
