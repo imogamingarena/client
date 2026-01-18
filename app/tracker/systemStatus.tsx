@@ -429,70 +429,6 @@ const DynamicSystemStatusDashboard: React.FC = () => {
             </p>
           </div>
         </div>
-
-        {/* Start Session Form */}
-        {selectedSystem && (
-          <div className="mb-6 p-6 rounded-2xl bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700">
-            <h2 className="text-xl font-bold mb-4">Start New Session</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">
-                  Player Name
-                </label>
-                <input
-                  type="text"
-                  value={playerName}
-                  onChange={(e) => setPlayerName(e.target.value)}
-                  className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
-                  placeholder="Enter player name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">
-                  Phone (Optional)
-                </label>
-                <input
-                  type="tel"
-                  value={playerPhone}
-                  onChange={(e) => setPlayerPhone(e.target.value)}
-                  className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
-                  placeholder="Enter phone number"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">
-                  Controllers
-                </label>
-                <select
-                  value={controllerCount}
-                  onChange={(e) => setControllerCount(parseInt(e.target.value))}
-                  className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
-                >
-                  {[...Array(8)].map((_, i) => (
-                    <option key={i + 1} value={i + 1}>
-                      {i + 1} Controller{i + 1 > 1 ? "s" : ""}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => handleStartSession(selectedSystem)}
-                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold px-6 py-3 rounded-xl transition-all duration-200"
-              >
-                Start Session
-              </button>
-              <button
-                onClick={() => setSelectedSystem(null)}
-                className="bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white font-bold px-6 py-3 rounded-xl transition-all duration-200"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Systems Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {systems.map((system) => (
@@ -505,40 +441,6 @@ const DynamicSystemStatusDashboard: React.FC = () => {
               onCancel={handleCancel}
             />
           ))}
-        </div>
-
-        {/* Stats Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="p-6 rounded-2xl bg-gradient-to-r from-green-900/30 to-emerald-900/30 border border-green-800/30">
-            <div className="text-3xl font-bold text-green-400 mb-2">
-              {systems.filter((s) => s.status === "active").length}
-            </div>
-            <div className="text-sm text-gray-400">Active Systems</div>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-gradient-to-r from-yellow-900/30 to-amber-900/30 border border-yellow-800/30">
-            <div className="text-3xl font-bold text-yellow-400 mb-2">
-              {systems.filter((s) => s.status === "paused").length}
-            </div>
-            <div className="text-sm text-gray-400">Paused Systems</div>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-900/30 to-cyan-900/30 border border-blue-800/30">
-            <div className="text-3xl font-bold text-blue-400 mb-2">
-              {systems.length}
-            </div>
-            <div className="text-sm text-gray-400">Total Systems</div>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-gradient-to-r from-purple-900/30 to-pink-900/30 border border-purple-800/30">
-            <div className="text-3xl font-bold text-purple-400 mb-2">
-              ₹
-              {systems
-                .reduce((sum, sys) => sum + sys.totalAmount, 0)
-                .toFixed(2)}
-            </div>
-            <div className="text-sm text-gray-400">Total Revenue</div>
-          </div>
         </div>
       </div>
     </div>
