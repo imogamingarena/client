@@ -10,7 +10,7 @@ import {
   getSystemIcon,
 } from "@/helperFunction";
 import { System, SystemStatusProps } from "@/types/interface";
-import { systemsDesc } from "./systemDetails";
+import { systemsDesc } from "@/systemDetails";
 
 // Type assertion to ensure systemsDesc matches System[]
 
@@ -311,7 +311,6 @@ const DynamicSystemStatusDashboard: React.FC = () => {
   const [systems, setSystems] = useState<System[]>(systemsDesc);
   const [playerName, setPlayerName] = useState("");
   const [playerPhone, setPlayerPhone] = useState("");
-  const [selectedSystem, setSelectedSystem] = useState<string | null>(null);
   const [controllerCount, setControllerCount] = useState(1);
 
   const handleStartSession = (systemId: string) => {
@@ -340,7 +339,6 @@ const DynamicSystemStatusDashboard: React.FC = () => {
 
     setPlayerName("");
     setPlayerPhone("");
-    setSelectedSystem(null);
     setControllerCount(1);
   };
 
