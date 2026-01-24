@@ -177,7 +177,7 @@ const Button = memo<ButtonProps>(
         {isLoading ? "⏳ Generating..." : children}
       </button>
     );
-  }
+  },
 );
 Button.displayName = "Button";
 
@@ -269,55 +269,7 @@ interface PriceTableRowProps {
   setup: GamingSetup;
 }
 
-const PriceTableRow = memo<PriceTableRowProps>(({ setup }) => (
-  <tr className="price-table-row">
-    <td
-      style={{
-        fontWeight: "bold",
-        color: STYLES.colors.secondary,
-        fontSize: "1.3rem",
-        padding: "18px",
-        textAlign: "center",
-        border: "1px solid #444",
-        whiteSpace: "nowrap",
-      }}
-    >
-      {setup.name} &#40;{setup.size}&#41;
-    </td>
-    {DURATIONS.map((duration) => (
-      <td
-        key={duration}
-        style={{
-          fontWeight: "bold",
-          color: STYLES.colors.primary,
-          fontSize: "1.4rem",
-          padding: "18px",
-          textAlign: "center",
-          border: "1px solid #444",
-          position: "relative",
-        }}
-      >
-        {formatCurrency(setup.pricing[duration])}
-        {/* {duration === "120m" && (
-          <span style={{
-            background: STYLES.colors.accent,
-            color: STYLES.colors.text.light,
-            padding: "4px 8px",
-            borderRadius: "20px",
-            fontSize: "0.9rem",
-            fontWeight: "bold",
-            marginLeft: "8px",
-            display: "inline-block"
-          }}>
-            +30 FREE
-          </span>
-        )} */}
-      </td>
-    ))}
-  </tr>
-));
-PriceTableRow.displayName = "PriceTableRow";
-
+// Main priceing table
 const PricingTable = memo(() => {
   const tableHeaderStyle: React.CSSProperties = {
     background: STYLES.gradients.tableHeader,
@@ -337,18 +289,119 @@ const PricingTable = memo(() => {
     >
       <thead>
         <tr>
+          <th></th>
+          <th style={tableHeaderStyle} colSpan={2}>
+            For one player
+          </th>
+          <th style={tableHeaderStyle} colSpan={2}>
+            For two players
+          </th>
+        </tr>
+        <tr>
           <th style={tableHeaderStyle}>System / Duration</th>
-          {DURATIONS.map((duration) => (
-            <th key={duration} style={tableHeaderStyle}>
-              {DURATION_LABELS[duration]}
-            </th>
-          ))}
+          <th style={tableHeaderStyle}>1/2 hr</th>
+          <th style={tableHeaderStyle}>1 hr</th>
+          <th style={tableHeaderStyle}>1/2 hr</th>
+          <th style={tableHeaderStyle}>1 hr</th>
         </tr>
       </thead>
       <tbody>
-        {GAMING_SETUPS.map((setup) => (
-          <PriceTableRow key={setup.id} setup={setup} />
-        ))}
+        {/* first row */}
+        <tr className="price-table-row">
+          <td
+            style={{
+              fontWeight: "bold",
+              color: STYLES.colors.secondary,
+              fontSize: "1.3rem",
+              padding: "18px",
+              textAlign: "center",
+              border: "1px solid #444",
+              whiteSpace: "nowrap",
+            }}
+          >
+            PC Setup &#40;24"&#41;
+          </td>
+          {[50, 80, 70, 120].map((price, index) => (
+            <td
+              key={index}
+              style={{
+                fontWeight: "bold",
+                color: STYLES.colors.primary,
+                fontSize: "1.4rem",
+                padding: "18px",
+                textAlign: "center",
+                border: "1px solid #444",
+                position: "relative",
+              }}
+            >
+              {formatCurrency(price)}
+            </td>
+          ))}
+        </tr>
+        {/* second row */}
+        <tr className="price-table-row">
+          <td
+            style={{
+              fontWeight: "bold",
+              color: STYLES.colors.secondary,
+              fontSize: "1.3rem",
+              padding: "18px",
+              textAlign: "center",
+              border: "1px solid #444",
+              whiteSpace: "nowrap",
+            }}
+          >
+            PS Setup &#40;32"&#41;
+          </td>
+          {[60, 100, 90, 150].map((price, index) => (
+            <td
+              key={index}
+              style={{
+                fontWeight: "bold",
+                color: STYLES.colors.primary,
+                fontSize: "1.4rem",
+                padding: "18px",
+                textAlign: "center",
+                border: "1px solid #444",
+                position: "relative",
+              }}
+            >
+              {formatCurrency(price)}
+            </td>
+          ))}
+        </tr>
+        {/* third row */}
+        <tr className="price-table-row">
+          <td
+            style={{
+              fontWeight: "bold",
+              color: STYLES.colors.secondary,
+              fontSize: "1.3rem",
+              padding: "18px",
+              textAlign: "center",
+              border: "1px solid #444",
+              whiteSpace: "nowrap",
+            }}
+          >
+            PC Setup &#40;55"&#41;
+          </td>
+          {[70, 120, 100, 180].map((price, index) => (
+            <td
+              key={index}
+              style={{
+                fontWeight: "bold",
+                color: STYLES.colors.primary,
+                fontSize: "1.4rem",
+                padding: "18px",
+                textAlign: "center",
+                border: "1px solid #444",
+                position: "relative",
+              }}
+            >
+              {formatCurrency(price)}
+            </td>
+          ))}
+        </tr>
       </tbody>
     </table>
   );
@@ -498,7 +551,7 @@ const DownloadButtonContainer = memo<DownloadButtonContainerProps>(
         📄 Download PDF
       </Button>
     </div>
-  )
+  ),
 );
 DownloadButtonContainer.displayName = "DownloadButtonContainer";
 
@@ -561,7 +614,7 @@ const IMOGamingArena: React.FC = () => {
     () => [
       {
         icon: "🎁",
-        text: "SPECIAL OFFER: After 180 minutes, get next 30 minutes FREE!",
+        text: "SPECIAL OFFER: After 3hrs , get next 30 minutes for FREE!",
         gradient: STYLES.gradients.promo1,
       },
       // {
@@ -570,7 +623,7 @@ const IMOGamingArena: React.FC = () => {
       //   gradient: STYLES.gradients.promo2
       // }
     ],
-    []
+    [],
   );
 
   return (
