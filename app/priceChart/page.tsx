@@ -383,7 +383,7 @@ const PricingTable = memo(() => {
               whiteSpace: "nowrap",
             }}
           >
-            PC Setup &#40;55"&#41;
+            PS Setup &#40;55"&#41;
           </td>
           {[70, 120, 100, 180].map((price, index) => (
             <td
@@ -614,7 +614,7 @@ const IMOGamingArena: React.FC = () => {
     () => [
       {
         icon: "🎁",
-        text: "SPECIAL OFFER: After 3hrs , get next 30 minutes for FREE!",
+        text: "SPECIAL OFFER: After 3hrs , get next 1hr for FREE in same seating!",
         gradient: STYLES.gradients.promo1,
       },
       // {
